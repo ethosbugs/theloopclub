@@ -1,606 +1,239 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#061957">
-<meta name="description" content="TheLoop — herramientas, criterio y comunidad para crear en digital.">
-<title>TheLoop — Think beyond the loop</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800;900&display=swap');
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>TheLoop · Club privado de vibecoding y creación digital con IA</title>
+  <meta name="description" content="TheLoop es un club privado para jóvenes creadores que quieren dominar el vibecoding y la creación digital con IA. Deja de consumir, empieza a construir. Asegura tu plaza.">
+  <meta name="theme-color" content="#01165A">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 
-:root {
-  --navy: #061957;
-  --blue: #09236f;
-  --ink: #081943;
-  --paper: #f7f8fb;
-  --muted: #737d98;
-  --line: rgba(8, 25, 67, 0.13);
-  --ease: cubic-bezier(.2, .75, .2, 1);
-}
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="TheLoop · Deja de consumir. Empieza a construir.">
+  <meta property="og:description" content="Club privado de vibecoding y creación digital con IA para jóvenes creadores. Asegura tu plaza en la lista privada.">
+  <meta property="og:image" content="assets/og-image.png">
+  <meta property="og:locale" content="es_ES">
+  <meta name="twitter:card" content="summary_large_image">
 
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-  margin: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: Manrope, Arial, sans-serif;
-  overflow-x: hidden;
-}
-
-a { color: inherit; text-decoration: none; }
-button, input { font: inherit; }
-.mono { font-family: 'DM Mono', monospace; letter-spacing: .08em; text-transform: uppercase; font-size: 10px; }
-
-/* Navegación */
-.nav {
-  position: fixed;
-  z-index: 20;
-  top: 0;
-  left: 0;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 22px 5vw;
-  color: var(--ink);
-  transition: color .5s, padding .4s, background .3s;
-}
-.nav.scrolled {
-  padding-top: 15px;
-  padding-bottom: 15px;
-  background: rgba(247, 248, 251, 0.82);
-  backdrop-filter: blur(18px);
-  border-bottom: 1px solid rgba(8, 25, 67, 0.07);
-}
-.nav.on-dark { color: white; }
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 900;
-  letter-spacing: -.07em;
-  font-size: 20px;
-}
-.brand-mark { width: 24px; height: 24px; }
-.nav-links { display: flex; gap: 34px; align-items: center; font-size: 12px; font-weight: 700; }
-.nav-links a { opacity: .72; transition: opacity .2s; }
-.nav-links a:hover { opacity: 1; }
-.nav-cta { padding: 11px 17px; border: 1px solid currentColor; border-radius: 99px; opacity: 1 !important; }
-
-/* Hero y Animación de Scroll */
-.hero { height: 220vh; position: relative; background: #fff; }
-.hero-stage {
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-  background: #fff;
-  isolation: isolate;
-}
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  background: var(--navy);
-  clip-path: inset(100% 0 0 0);
-  z-index: 0;
-  will-change: clip-path;
-}
-.star-wrap {
-  position: absolute;
-  width: min(66vw, 650px);
-  aspect-ratio: 1;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  will-change: transform, opacity;
-}
-.star-wrap svg { width: 100%; height: 100%; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.15)); }
-
-/* Ojos de la estrella para animación de parpadeo */
-.star-eyes {
-  transform-origin: center;
-  transition: transform 0.15s ease;
-}
-.star-wrap.blinking .star-eyes {
-  transform: scaleY(0.1);
-}
-
-.hero-logo {
-  position: absolute;
-  width: min(76vw, 720px);
-  height: auto;
-  z-index: 3;
-  opacity: 0;
-  transform: scale(.9);
-  will-change: opacity, transform;
-}
-.hero-copy {
-  position: absolute;
-  z-index: 4;
-  bottom: 8vh;
-  left: 5vw;
-  right: 5vw;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  color: var(--ink);
-  will-change: opacity;
-}
-.hero-copy .eyebrow { margin-bottom: 13px; }
-.hero-title {
-  font-size: clamp(36px, 6.8vw, 94px);
-  line-height: .92;
-  letter-spacing: -.085em;
-  font-weight: 900;
-  max-width: 700px;
-  margin: 0;
-}
-.hero-note { max-width: 190px; font-size: 12px; line-height: 1.6; font-weight: 600; }
-.scroll-cue {
-  position: absolute;
-  z-index: 4;
-  right: 5vw;
-  top: 50%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  writing-mode: vertical-rl;
-  color: var(--ink);
-}
-.scroll-line {
-  height: 55px;
-  width: 1px;
-  background: currentColor;
-  transform-origin: top;
-  animation: line 1.5s ease-in-out infinite;
-}
-@keyframes line {
-  0%, 100% { transform: scaleY(.35); opacity: .4; }
-  50% { transform: scaleY(1); opacity: 1; }
-}
-
-/* Secciones generales */
-.section { padding: 145px 8vw; }
-.intro { display: grid; grid-template-columns: 1fr 1fr; gap: 8vw; align-items: end; }
-.eyebrow { color: #53638d; }
-.section h2 {
-  font-size: clamp(38px, 6vw, 76px);
-  letter-spacing: -.075em;
-  line-height: .98;
-  margin: 18px 0 0;
-  font-weight: 900;
-}
-.intro p { max-width: 440px; font-size: 16px; line-height: 1.8; color: #58627c; margin: 0 0 8px; }
-
-/* Servicios */
-.services { padding-top: 80px; }
-.section-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 48px; }
-.section-head p { color: var(--muted); font-size: 13px; max-width: 240px; line-height: 1.6; }
-.service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.service {
-  min-height: 350px;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-  overflow: hidden;
-  transition: transform .5s var(--ease), background .4s, color .4s, border-color .4s;
-}
-.service:hover { transform: translateY(-9px); background: var(--navy); color: white; border-color: var(--navy); }
-.service-num { color: #7884a4; }
-.service-icon {
-  width: 54px;
-  height: 54px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 18px;
-  font-weight: 800;
-  transition: transform .5s, border-color .4s;
-}
-.service:hover .service-icon { transform: rotate(-12deg) scale(1.08); border-color: rgba(255, 255, 255, .4); }
-.service h3 { font-size: 25px; letter-spacing: -.06em; margin: 0 0 12px; }
-.service p { font-size: 13px; line-height: 1.7; color: #77809a; max-width: 290px; margin: 0; }
-.service:hover p { color: #c5cce0; }
-.service-foot { display: flex; justify-content: space-between; align-items: center; }
-.arrow { font-size: 20px; transition: transform .3s; font-weight: 800; }
-.service:hover .arrow { transform: translate(4px, -4px); }
-
-/* Manifesto */
-.manifesto {
-  background: var(--navy);
-  color: #fff;
-  padding: 130px 8vw;
-  position: relative;
-  overflow: hidden;
-}
-.manifesto:after {
-  content: "";
-  position: absolute;
-  width: 550px;
-  height: 550px;
-  border: 1px solid rgba(255, 255, 255, .12);
-  border-radius: 50%;
-  right: -150px;
-  top: -250px;
-  box-shadow: 0 0 0 60px rgba(255, 255, 255, .025), 0 0 0 120px rgba(255, 255, 255, .02);
-}
-.manifesto-inner { position: relative; z-index: 1; max-width: 1000px; }
-.manifesto h2 { font-size: clamp(42px, 8vw, 104px); line-height: .94; letter-spacing: -.085em; margin: 30px 0 48px; }
-.manifesto h2 span { color: #8295d6; }
-.manifesto-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; }
-.manifesto-bottom p { max-width: 380px; line-height: 1.8; color: #b9c4e5; font-size: 14px; }
-.manifesto .mono { color: #a9b8e9; }
-
-/* Formulario */
-.join { padding: 150px 8vw; background: #f1f3f8; }
-.join-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9vw; align-items: start; }
-.join h2 { font-size: clamp(45px, 7vw, 88px); letter-spacing: -.085em; line-height: .9; margin: 22px 0; }
-.join-copy { color: #66708b; line-height: 1.8; max-width: 390px; font-size: 14px; }
-.form-card { background: #fff; padding: 36px; border: 1px solid var(--line); box-shadow: 0 20px 70px rgba(7, 25, 75, .06); }
-.form-card label { display: block; font-size: 11px; font-weight: 800; margin: 18px 0 8px; }
-.form-card input {
-  width: 100%;
-  border: 0;
-  border-bottom: 1px solid #cbd1df;
-  padding: 13px 0;
-  outline: 0;
-  background: transparent;
-  color: var(--ink);
-  font-size: 14px;
-  border-radius: 0;
-}
-.form-card input:focus { border-color: var(--navy); }
-.form-card button {
-  width: 100%;
-  margin-top: 28px;
-  padding: 17px 20px;
-  background: var(--navy);
-  color: white;
-  border: 0;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: background .25s, transform .25s;
-}
-.form-card button:hover { background: #12358f; transform: translateY(-2px); }
-.fine { font-size: 10px; color: #929bb0; line-height: 1.6; margin-top: 16px; }
-.status-msg {
-  display: none;
-  padding: 15px;
-  font-weight: 700;
-  font-size: 13px;
-  line-height: 1.6;
-  margin-top: 20px;
-  border-radius: 4px;
-}
-.status-msg.success { background: #eef2ff; color: var(--navy); }
-.status-msg.error { background: #ffeef0; color: #c5221f; }
-
-/* Footer */
-.footer {
-  background: #061342;
-  color: #fff;
-  padding: 34px 5vw;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-}
-.footer .brand { font-size: 18px; }
-.footer-note { color: #98a6d0; }
-
-/* Animaciones de entrada */
-.reveal { opacity: 0; transform: translateY(35px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
-.reveal.visible { opacity: 1; transform: translateY(0); }
-.delay-1 { transition-delay: .12s; }
-.delay-2 { transition-delay: .24s; }
-
-@media(max-width:760px){
-  .nav { padding: 18px 6vw; }
-  .nav-links { gap: 15px; }
-  .nav-links a:not(.nav-cta) { display: none; }
-  .hero { height: 180vh; }
-  .star-wrap { width: 94vw; }
-  .hero-logo { width: 100vw; }
-  .hero-copy { bottom: 9vh; display: block; }
-  .hero-title { font-size: clamp(42px, 13vw, 76px); }
-  .hero-note { margin-top: 20px; max-width: 240px; }
-  .scroll-cue { right: 6vw; top: 43%; }
-  .section { padding: 95px 7vw; }
-  .intro, .join-grid { grid-template-columns: 1fr; gap: 35px; }
-  .section-head { display: block; }
-  .section-head p { margin-top: 20px; }
-  .service-grid { grid-template-columns: 1fr; }
-  .service { min-height: 290px; }
-  .manifesto { padding: 95px 7vw; }
-  .manifesto-bottom { display: block; }
-  .manifesto-bottom p { margin-bottom: 30px; }
-  .form-card { padding: 26px; }
-  .footer { gap: 15px; flex-wrap: wrap; }
-  .footer-note { width: 100%; }
-}
-@media(prefers-reduced-motion:reduce){
-  html { scroll-behavior: auto; }
-  *, *:before, *:after { animation-duration: .01ms!important; transition-duration: .01ms!important; }
-}
-</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,200;0,400;0,500;0,600;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Organization","name":"TheLoop","description":"Club privado de vibecoding y creación digital con IA para jóvenes creadores.","sameAs":["https://instagram.com/the_loop_oficial"]}
+  </script>
 </head>
 <body>
+  <a class="skip" href="#que-es">Saltar al contenido</a>
 
-<header class="nav" id="nav">
-  <a class="brand" href="#top">
-    <!-- Estrella Vectorial Limpia -->
-    <svg class="brand-mark" viewBox="0 0 500 500" fill="none">
-      <path d="M250 35C285 130 370 145 440 210C485 255 450 350 370 410C300 460 200 460 130 410C50 350 15 255 60 210C130 145 215 130 250 35Z" fill="#061957"/>
-      <ellipse cx="205" cy="245" rx="32" ry="42" fill="white"/>
-      <ellipse cx="295" cy="245" rx="32" ry="42" fill="white"/>
-    </svg>
-    THELOOP
-  </a>
-  <nav class="nav-links">
-    <a href="#servicios">Qué hacemos</a>
-    <a href="#filosofia">La idea</a>
-    <a class="nav-cta" href="#lista">Lista privada &nearr;</a>
-  </nav>
-</header>
+  <header class="nav" id="top">
+    <a class="brand" href="#top" aria-label="TheLoop, inicio">
+      <img src="assets/star.svg" alt="" width="30" height="30"><span>theloop</span>
+    </a>
+    <nav class="nav__links" aria-label="Principal">
+      <a href="#que-es">Qué es</a>
+      <a href="#dentro">Qué hay dentro</a>
+      <a href="#como">Cómo funciona</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn btn--sm" href="#unirme">Asegurar plaza</a>
+  </header>
 
-<main id="top">
-<section class="hero" id="hero">
-  <div class="hero-stage" id="stage">
-    <div class="hero-bg" id="heroBg"></div>
-    
-    <!-- Estrella Mascota Interactiva con Ojos -->
-    <div class="star-wrap" id="star">
-      <svg viewBox="0 0 500 500" fill="none">
-        <path d="M250 35C285 130 370 145 440 210C485 255 450 350 370 410C300 460 200 460 130 410C50 350 15 255 60 210C130 145 215 130 250 35Z" fill="#061957"/>
-        <g class="star-eyes">
-          <ellipse cx="205" cy="245" rx="32" ry="42" fill="white"/>
-          <ellipse cx="295" cy="245" rx="32" ry="42" fill="white"/>
-        </g>
-      </svg>
-    </div>
+  <main>
+    <!-- ============ ESCENA DE SCROLL: la estrella llena la pantalla y se convierte en LOOP ============ -->
+    <section class="stage" id="stage" aria-label="Introducción">
+      <div class="stage__pin">
+        <svg id="stageSvg" role="img" aria-label="La estrella de TheLoop crece hasta llenar la pantalla de azul, parpadea y se convierte en el logotipo LOOP"></svg>
 
-    <!-- Logo LOOP Vectorial -->
-    <div class="hero-logo" id="heroLogo">
-      <svg viewBox="0 0 800 260" fill="none">
-        <path d="M 120 40 L 190 40 L 190 170 L 260 170 L 260 220 L 120 220 Z" fill="white"/>
-        <path d="M 350 35 C 410 35 440 70 440 130 C 440 190 410 225 350 225 C 290 225 260 190 260 130 C 260 70 290 35 350 35 Z M 350 85 C 325 85 315 102 315 130 C 315 158 325 175 350 175 C 375 175 385 158 385 130 C 385 102 375 85 350 85 Z" fill="white"/>
-        <path d="M 540 35 C 600 35 630 70 630 130 C 630 190 600 225 540 225 C 480 225 450 190 450 130 C 450 70 480 35 540 35 Z M 540 85 C 515 85 505 102 505 130 C 505 158 515 175 540 175 C 565 175 575 158 575 130 C 575 102 565 85 540 85 Z" fill="white"/>
-        <path d="M 650 40 L 740 40 C 780 40 800 60 800 95 C 800 130 780 150 740 150 L 710 150 L 710 220 L 650 220 Z M 710 90 L 735 90 C 748 90 752 94 752 98 C 752 102 748 106 735 106 L 710 106 Z" fill="white"/>
-      </svg>
-    </div>
+        <div class="stage__intro" id="stageIntro">
+          <p class="pill"><span class="dot"></span> Club privado · En construcción</p>
+          <h1 class="stage__title">
+            <span class="type" id="typeLine" aria-hidden="true"></span>
+            <span class="sr">TheLoop: deja de consumir, empieza a construir.</span>
+          </h1>
+        </div>
 
-    <div class="hero-copy" id="heroCopy">
-      <div>
-        <div class="mono eyebrow">Club Privado · 001</div>
-        <h1 class="hero-title">Vibecoding y velocidad.</h1>
+        <div class="stage__hint" id="stageHint" aria-hidden="true"><span>scroll</span><i></i></div>
+
+        <div class="stage__outro" id="stageOutro">
+          <p class="stage__tag">club privado de vibecoding</p>
+          <p class="stage__sub">Crea webs, apps y proyectos con IA.<br>Sin las barreras del código tradicional.</p>
+          <a class="btn btn--light" href="#unirme">Asegurar mi plaza</a>
+        </div>
       </div>
-      <div class="hero-note">Crea proyectos reales guiados por Inteligencia Artificial[cite: 5].</div>
-    </div>
-    
-    <div class="scroll-cue mono" id="scrollCue">
-      <span>SCROLL PARA DESCUBRIR</span>
-      <i class="scroll-line"></i>
-    </div>
-  </div>
-</section>
+    </section>
 
-<section class="section intro">
-  <div class="reveal">
-    <div class="mono eyebrow">01 / El cambio</div>
-    <h2>De consumir redes<br>a construir con IA.</h2>
-  </div>
-  <p class="reveal delay-1">Ya no necesitas años de programación tradicional para lanzar herramientas digitales potentes. La clave actual es dirigir las tecnologías con criterio y velocidad[cite: 5].</p>
-</section>
-
-<section class="section services" id="servicios">
-  <div class="section-head reveal">
-    <div>
-      <div class="mono eyebrow">02 / Lo que encontrarás</div>
-      <h2>Tu ventaja competitiva.</h2>
-    </div>
-    <p>Un espacio técnico y directo para creadores que hacen[cite: 5].</p>
-  </div>
-  <div class="service-grid">
-    <article class="service reveal">
-      <div class="service-foot"><span class="mono service-num">01 — CREATE</span><span class="service-icon">[+]</span></div>
-      <div>
-        <h3>Vibecoding</h3>
-        <p>Desarrolla webs y aplicaciones fluidas apoyándote en flujos avanzados de Inteligencia Artificial.</p>
+    <!-- ============ QUÉ ES ============ -->
+    <section class="section" id="que-es">
+      <div class="wrap">
+        <p class="eyebrow">Qué es TheLoop</p>
+        <h2 class="h2">Deja de consumir contenido. <em>Empieza a construir.</em></h2>
+        <div class="two">
+          <p class="big">TheLoop es un club privado para <strong>jóvenes creadores, estudiantes y entusiastas de la tecnología</strong> que quieren dominar la creación digital moderna: webs, aplicaciones y proyectos guiados por IA, sin las barreras del código tradicional.</p>
+          <p class="big big--soft">Aquí no va de ver más vídeos. Va de lanzar proyectos reales, con velocidad, con estilo y con gente que va en tu misma dirección. Un bucle de ideas, pruebas y mejoras que no se para.</p>
+        </div>
       </div>
-      <div class="service-foot"><span class="mono">Ideación rápida</span><span class="arrow">&nearr;</span></div>
-    </article>
-    <article class="service reveal delay-1">
-      <div class="service-foot"><span class="mono service-num">02 — LEARN</span><span class="service-icon">[#]</span></div>
-      <div>
-        <h3>Productividad</h3>
-        <p>Optimiza tus procesos personales y de desarrollo para iterar con máxima eficiencia.</p>
+    </section>
+
+    <div class="marquee" aria-label="Temas: vibecoding, IA, no-code, productividad">
+      <div class="marquee__track" aria-hidden="true">
+        <span>vibecoding</span><span>★</span><span>inteligencia artificial</span><span>★</span><span>no-code</span><span>★</span><span>productividad</span><span>★</span><span>proyectos reales</span><span>★</span>
+        <span>vibecoding</span><span>★</span><span>inteligencia artificial</span><span>★</span><span>no-code</span><span>★</span><span>productividad</span><span>★</span><span>proyectos reales</span><span>★</span>
       </div>
-      <div class="service-foot"><span class="mono">Aprende haciendo</span><span class="arrow">&nearr;</span></div>
-    </article>
-    <article class="service reveal delay-2">
-      <div class="service-foot"><span class="mono service-num">03 — CONNECT</span><span class="service-icon">[@]</span></div>
-      <div>
-        <h3>Comunidad</h3>
-        <p>Conecta con creadores y mentes inquietas que están construyendo el futuro digital[cite: 5].</p>
+    </div>
+
+    <!-- ============ QUÉ HAY DENTRO ============ -->
+    <section class="section" id="dentro">
+      <div class="wrap">
+        <p class="eyebrow">Qué hay dentro</p>
+        <h2 class="h2">Todo lo que necesitas para pasar de la idea al lanzamiento.</h2>
+        <div class="bento">
+          <article class="card card--wide">
+            <div class="card__icon"><svg viewBox="0 0 100 100" fill="none" stroke="#01165A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 14h46a8 8 0 0 1 8 8v64H26a8 8 0 0 1-8-8z"/><path d="M72 30h10v56H34"/><line x1="32" y1="36" x2="58" y2="36"/><line x1="32" y1="52" x2="58" y2="52"/></svg></div>
+            <h3>Guías exclusivas</h3>
+            <p>Rutas claras para crear webs, apps y proyectos digitales con IA, sin perder semanas probando a ciegas.</p>
+          </article>
+          <article class="card">
+            <div class="card__icon"><svg viewBox="0 0 100 100"><path d="M50 6C54 34 66 46 94 50 66 54 54 66 50 94 46 66 34 54 6 50 34 46 46 34 50 6Z" fill="#01165A"/><path d="M80 8C81 16 84 19 92 20 84 21 81 24 80 32 79 24 76 21 68 20 76 19 79 16 80 8Z" fill="#01165A"/></svg></div>
+            <h3>Recursos de IA</h3>
+            <p>Prompts y workflows listos para copiar, adaptar y poner a trabajar.</p>
+          </article>
+          <article class="card">
+            <div class="card__icon"><svg viewBox="0 0 100 100" fill="none" stroke="#01165A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><polyline points="32,28 10,50 32,72"/><polyline points="68,28 90,50 68,72"/><line x1="57" y1="20" x2="43" y2="80"/></svg></div>
+            <h3>Tutoriales paso a paso</h3>
+            <p>De cero a proyecto publicado, sin necesidad de saber programar.</p>
+          </article>
+          <article class="card">
+            <div class="card__icon"><svg viewBox="0 0 100 100" fill="none" stroke="#01165A" stroke-width="8" stroke-linecap="round"><circle cx="34" cy="34" r="14"/><circle cx="70" cy="40" r="11"/><path d="M8 84c2-18 12-28 26-28s24 10 26 28M58 62c14-4 28 4 32 22"/></svg></div>
+            <h3>Red de contactos</h3>
+            <p>Creadores como tú. Colabora, pregunta, comparte y crece dentro del loop.</p>
+          </article>
+          <article class="card">
+            <div class="card__icon"><svg viewBox="0 0 100 100" fill="none" stroke="#01165A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><circle cx="50" cy="52" r="34"/><polyline points="50,28 50,52 68,62"/></svg></div>
+            <h3>Productividad personal</h3>
+            <p>Sistemas y hábitos para aprovechar tu tiempo, mantener el ritmo y avanzar más rápido que la media.</p>
+          </article>
+        </div>
+        <p class="tools"><span>Herramientas con las que trabajamos</span> Cursor · v0 · Claude · ChatGPT · Framer</p>
       </div>
-      <div class="service-foot"><span class="mono">Alto valor</span><span class="arrow">&nearr;</span></div>
-    </article>
-  </div>
-</section>
+    </section>
 
-<section class="manifesto" id="filosofia">
-  <div class="manifesto-inner">
-    <div class="mono reveal">03 / Nuestra filosofía</div>
-    <h2 class="reveal delay-1">Menos código<br>bloqueante. <span>Más impacto</span><br>y estilo.</h2>
-    <div class="manifesto-bottom reveal delay-2">
-      <p>TheLoop es el club privado nativo para la nueva generación de creadores digitales que buscan destacar sin rodeos[cite: 5].</p>
-      <div class="mono">THINK &middot; BUILD &middot; SHARE</div>
+    <!-- ============ DEMO VIBECODING ============ -->
+    <section class="section section--tint" id="demo">
+      <div class="wrap demo">
+        <div class="demo__copy">
+          <p class="eyebrow">Vibecoding</p>
+          <h2 class="h2">De una frase a una web.</h2>
+          <p class="big big--soft">Describes lo que quieres. La IA lo construye. Tú lo afinas y lo publicas. Eso es vibecoding, y no hace falta ser programador para hacerlo.</p>
+        </div>
+        <div class="demo__art" aria-hidden="true">
+          <div class="chat">
+            <div class="chat__bar"><i></i><i></i><i></i><span>chat</span></div>
+            <div class="chat__body">
+              <div class="bubble bubble--me" id="demoPrompt"></div>
+              <div class="chat__think" id="demoThink"><img src="assets/star.svg" alt="" width="34" height="34"><span>construyendo…</span></div>
+              <div class="chat__site" id="demoSite">
+                <div class="mock__bar"><i></i><i></i><i></i><span>mi-proyecto.com</span></div>
+                <div class="site">
+                  <div class="site__nav"><b></b><u></u><u></u><u></u></div>
+                  <div class="site__hero">
+                    <div><h4>tu idea,<br>online.</h4><s></s><s></s><em>empezar</em></div>
+                    <div class="site__img"><i></i><i></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DOS CAMINOS ============ -->
+    <section class="section" id="problema">
+      <div class="wrap">
+        <p class="eyebrow">El problema</p>
+        <h2 class="h2">Mientras unos pierden horas escribiendo código, otros crean <em>webs enteras en minutos</em>.</h2>
+        <div class="vs">
+          <article class="vs__card">
+            <div class="ring" aria-hidden="true"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" class="ring__track"/><circle cx="100" cy="100" r="86" class="ring__bar ring__bar--slow"/></svg><span>04:47</span></div>
+            <h3>El camino lento</h3>
+            <p>Horas peleando con la sintaxis, errores y tutoriales sueltos. Mucho esfuerzo, poco resultado.</p>
+          </article>
+          <article class="vs__card vs__card--hi">
+            <div class="ring" aria-hidden="true"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" class="ring__track"/><circle cx="100" cy="100" r="86" class="ring__bar ring__bar--fast"/></svg><span>00:09</span></div>
+            <h3>El camino TheLoop</h3>
+            <p>IA, las herramientas adecuadas y un método. La misma idea, publicada en minutos.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CÓMO FUNCIONA ============ -->
+    <section class="section section--tint" id="como">
+      <div class="wrap">
+        <p class="eyebrow">Cómo funciona</p>
+        <h2 class="h2">Entrar al loop es simple.</h2>
+        <ol class="steps">
+          <li><span class="steps__n">1</span><h3>Asegura tu plaza</h3><p>Apúntate a la lista privada con tu email. Es lo único que necesitamos.</p></li>
+          <li><span class="steps__n">2</span><h3>Te avisamos primero</h3><p>Estamos construyendo la primera comunidad. Te contactaremos antes de la apertura oficial.</p></li>
+          <li><span class="steps__n">3</span><h3>Entra y construye</h3><p>Guías, recursos, tutoriales y gente que crea contigo. A partir de ahí, solo falta lanzar.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ LISTA PRIVADA ============ -->
+    <section class="final" id="unirme">
+      <div class="wrap final__in">
+        <img class="final__star" src="assets/star-white.svg" alt="" width="110" height="110">
+        <h2>Asegura tu plaza <em>en el loop</em>.</h2>
+        <p>Estamos construyendo la primera comunidad. Apúntate a la lista privada y te contactaremos cuando llegue el momento.</p>
+        <form class="waitlist waitlist--dark" id="waitlistForm" data-source="web" novalidate>
+          <label class="sr" for="email">Tu email</label>
+          <div class="waitlist__row">
+            <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="tu@email.com" required>
+            <button class="btn" type="submit"><span class="btn__label">Apuntarme</span></button>
+          </div>
+          <label class="check">
+            <input type="checkbox" name="consent" required>
+            <span>Acepto recibir un aviso cuando abra la primera comunidad y la <a href="privacidad.html">política de privacidad</a>.</span>
+          </label>
+          <input class="hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <p class="form__msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section" id="faq">
+      <div class="wrap wrap--narrow">
+        <p class="eyebrow">Preguntas frecuentes</p>
+        <h2 class="h2">Lo que seguro te estás preguntando.</h2>
+        <div class="faq">
+          <details><summary>¿Qué es TheLoop?</summary><p>Un club privado para jóvenes creadores, estudiantes y entusiastas de la tecnología que quieren dominar el vibecoding: crear webs, apps y proyectos con IA, y optimizar su productividad.</p></details>
+          <details><summary>¿Necesito saber programar?</summary><p>No. De eso va el vibecoding: describes lo que quieres y la IA te ayuda a construirlo. Te enseñamos las herramientas y el método.</p></details>
+          <details><summary>¿Para quién es?</summary><p>Para cualquiera que quiera pasar de consumir contenido en redes a construir proyectos reales: jóvenes creadores, estudiantes y gente curiosa por la tecnología.</p></details>
+          <details><summary>¿Cuándo abre?</summary><p>El proyecto está en pleno desarrollo y estamos construyendo la comunidad inicial. Quienes estén en la lista privada recibirán el aviso antes de la apertura oficial.</p></details>
+          <details><summary>¿Cuánto cuesta apuntarse?</summary><p>Apuntarte a la lista es gratis y no te compromete a nada. Los detalles del acceso al club se compartirán antes de la apertura.</p></details>
+          <details><summary>¿Qué datos guardáis?</summary><p>Solo tu email y la fecha del alta, para avisarte cuando abramos. Puedes pedir que lo borremos cuando quieras. Más en la <a href="privacidad.html">política de privacidad</a>.</p></details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot__in">
+      <a class="brand" href="#top"><img src="assets/star.svg" alt="" width="30" height="30"><span>theloop</span></a>
+      <nav aria-label="Pie de página">
+        <a id="igLink" href="https://instagram.com/the_loop_oficial" target="_blank" rel="noopener">Instagram</a>
+        <a id="ttLink" href="#" target="_blank" rel="noopener" hidden>TikTok</a>
+        <a id="mailLink" href="mailto:the.loop.club.oficial@gmail.com">Contacto</a>
+        <a href="privacidad.html">Privacidad</a>
+      </nav>
+      <p>© <span id="year">2026</span> TheLoop. Deja de consumir. Empieza a construir.</p>
     </div>
-  </div>
-</section>
+  </footer>
 
-<section class="join" id="lista">
-  <div class="join-grid">
-    <div class="reveal">
-      <div class="mono eyebrow">04 / Acceso anticipado</div>
-      <h2>Entra en<br>el loop.</h2>
-      <p class="join-copy">Las plazas para la comunidad inicial son limitadas. Asegura tu acceso exclusivo en la lista privada.</p>
-      <div class="mono" style="margin-top:45px;color:#7d88a5">EARLY ACCESS &mdash; 2026</div>
-    </div>
-    
-    <!-- Configurado para Formspree (reemplaza TU_ID_DE_FORMSPREE por tu endpoint) -->
-    <form class="form-card reveal delay-1" id="joinForm" action="https://formspree.io/f/TU_ID_DE_FORMSPREE" method="POST">
-      <div class="mono eyebrow">TheLoop private list</div>
-      
-      <label for="name">¿Cómo te llamas?</label>
-      <input id="name" name="name" placeholder="Tu nombre" required>
-      
-      <label for="email">Tu email</label>
-      <input id="email" name="email" type="email" placeholder="nombre@email.com" required>
-      
-      <button type="submit" id="submitBtn">
-        <span>QUIERO ENTRAR EN LA LISTA</span>
-        <span>&nearr;</span>
-      </button>
-      
-      <p class="fine">Cero spam. Solo avisos importantes sobre el lanzamiento del club.</p>
-      
-      <div class="status-msg success" id="statusSuccess">¡Estás en la lista! En cuanto abramos, te avisaremos.</div>
-      <div class="status-msg error" id="statusError">Ups, ha ocurrido un error. Inténtalo de nuevo.</div>
-    </form>
-  </div>
-</section>
-</main>
-
-<footer class="footer">
-  <a class="brand" href="#top">
-    <svg class="brand-mark" viewBox="0 0 500 500" fill="none">
-      <path d="M250 35C285 130 370 145 440 210C485 255 450 350 370 410C300 460 200 460 130 410C50 350 15 255 60 210C130 145 215 130 250 35Z" fill="#ffffff"/>
-      <ellipse cx="205" cy="245" rx="32" ry="42" fill="#061342"/>
-      <ellipse cx="295" cy="245" rx="32" ry="42" fill="#061342"/>
-    </svg>
-    THELOOP
-  </a>
-  <span class="footer-note">Un espacio para los que hacen[cite: 5].</span>
-  <span class="mono">&copy; THELOOP 2026</span>
-</footer>
-
-<script>
-const hero = document.querySelector('#hero'), 
-      star = document.querySelector('#star'), 
-      bg = document.querySelector('#heroBg'), 
-      logo = document.querySelector('#heroLogo'), 
-      copy = document.querySelector('#heroCopy'), 
-      cue = document.querySelector('#scrollCue'), 
-      nav = document.querySelector('#nav');
-
-let ticking = false;
-let blinked = false;
-
-function updateHero(){
-  const rect = hero.getBoundingClientRect(), total = hero.offsetHeight - innerHeight;
-  const p = Math.max(0, Math.min(1, (-rect.top) / total));
-  const fill = Math.max(0, Math.min(1, (p - .05) / .50));
-  
-  bg.style.clipPath = `inset(${100 - fill * 100}% 0 0 0)`;
-  const scale = 1 + p * 4.2;
-  
-  star.style.transform = `scale(${scale})`;
-  star.style.opacity = String(Math.max(0, 1 - Math.max(0, (p - .42) / .18)));
-  
-  // Parpadeo de ojos justo cuando la pantalla se llena (alrededor de p = 0.40 - 0.45)
-  if (p > 0.38 && p < 0.48) {
-    if (!blinked) {
-      star.classList.add('blinking');
-      setTimeout(() => star.classList.remove('blinking'), 150);
-      blinked = true;
-    }
-  } else if (p < 0.25) {
-    blinked = false;
-  }
-
-  logo.style.opacity = String(Math.max(0, Math.min(1, (p - .46) / .18)));
-  logo.style.transform = `scale(${.9 + Math.max(0, Math.min(1, (p - .46) / .18)) * .1})`;
-  
-  copy.style.opacity = String(Math.max(0, 1 - p * 3.2));
-  cue.style.opacity = String(Math.max(0, 1 - p * 4.5));
-  
-  nav.classList.toggle('on-dark', p > .50);
-  nav.classList.toggle('scrolled', window.scrollY > 40 && p < .50);
-  
-  ticking = false;
-}
-
-window.addEventListener('scroll', () => {
-  if (!ticking) {
-    requestAnimationFrame(updateHero);
-    ticking = true;
-  }
-}, { passive: true });
-
-window.addEventListener('resize', updateHero);
-updateHero();
-
-// Observador para revelar secciones
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      observer.unobserve(e.target);
-    }
-  });
-}, { threshold: .14 });
-
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-// Envío del formulario asíncrono vía Formspree
-const form = document.querySelector('#joinForm');
-const btn = document.querySelector('#submitBtn');
-const successMsg = document.querySelector('#statusSuccess');
-const errorMsg = document.querySelector('#statusError');
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  btn.disabled = true;
-  btn.querySelector('span').innerText = 'ENVIANDO...';
-  
-  successMsg.style.display = 'none';
-  errorMsg.style.display = 'none';
-
-  try {
-    const response = await fetch(form.action, {
-      method: form.method,
-      body: new FormData(form),
-      headers: { 'Accept': 'application/json' }
-    });
-
-    if (response.ok) {
-      successMsg.style.display = 'block';
-      btn.querySelector('span').innerText = 'LISTO';
-      form.reset();
-    } else {
-      throw new Error('Error al enviar');
-    }
-  } catch (err) {
-    errorMsg.style.display = 'block';
-    btn.disabled = false;
-    btn.querySelector('span').innerText = 'QUIERO ENTRAR EN LA LISTA';
-  }
-});
-</script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

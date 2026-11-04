@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Página no encontrada · TheLoop</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#01165A">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--loop-blue:#01165A;--ink-soft:#4A5A85}
+    *{box-sizing:border-box;margin:0}
+    body{font-family:Inter,system-ui,sans-serif;color:var(--loop-blue);background:#FAFAFB;min-height:100vh;display:grid;place-content:center;text-align:center;gap:18px;padding:40px;-webkit-font-smoothing:antialiased}
+    h1{font-size:clamp(40px,9vw,88px);letter-spacing:-.05em;font-weight:800;line-height:1}
+    p{color:var(--ink-soft);font-size:18px}
+    a{display:inline-block;margin-top:8px;background:var(--loop-blue);color:#fff;padding:15px 26px;border-radius:14px;font-weight:700;text-decoration:none}
+    svg{width:120px;margin:0 auto}
+  </style>
+</head>
+<body>
+  <svg viewBox="-150 -150 300 300" aria-hidden="true"><polygon points="0,-106 34.1,-46.9 100.8,-32.8 55.1,17.9 62.5,85.7 0,58 -62.5,85.7 -55.1,17.9 -100.8,-32.8 -34.1,-46.9" fill="#01165A" stroke="#01165A" stroke-width="44" stroke-linejoin="round"/><ellipse cx="-27" cy="6" rx="16" ry="21" fill="#fff"/><ellipse cx="-27" cy="6" rx="6.5" ry="11.5" fill="#01165A"/><ellipse cx="27" cy="6" rx="16" ry="21" fill="#fff"/><ellipse cx="27" cy="6" rx="6.5" ry="11.5" fill="#01165A"/></svg>
+  <h1>404</h1>
+  <p>Esta página se ha perdido en el loop.</p>
+  <div><a href="./">Volver al inicio</a></div>
+  <script>
+    // En GitHub Pages de proyecto (usuario.github.io/repo/) las rutas absolutas no funcionan: ajusta el enlace.
+    (function(){var p=location.pathname.split('/').filter(Boolean);if(location.hostname.endsWith('github.io')&&p.length){document.querySelector('a').href='/'+p[0]+'/'}})();
+  </script>
+</body>
+</html>

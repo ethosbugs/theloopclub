@@ -1,11 +1,12 @@
-import { siteConfig } from "./firebase-config.js"; // Opcional: si ya borraste firebase-config.js, puedes quitar esta línea y definir el contacto manualmente
+import { firebaseConfig, siteConfig } from "./firebase-config.js";
 import { initStage } from "./stage.js";
 
+const FIREBASE_VERSION = "10.14.1";
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ---------- ajustes generales ---------- */
+/* ---------- ajustes desde firebase-config.js ---------- */
 $("#year").textContent = new Date().getFullYear();
 if (siteConfig.instagram) $("#igLink").href = siteConfig.instagram;
 if (siteConfig.tiktok) { const t = $("#ttLink"); t.href = siteConfig.tiktok; t.hidden = false; }
@@ -68,15 +69,13 @@ initStage({ reduceMotion });
 
 /* ---------- formularios de la lista privada (Formspree) ---------- */
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-
-// REEMPLAZA ESTE ENLACE con tu endpoint real de Formspree (ej: "https://formspree.io/f/tu-codigo")
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/TU_ENDPOINT_AQUI";
+const JOINED_KEY = "theloop_joined";
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/myeeldyl";
 
 function setMsg(form, text, kind) {
   const m = $(".form__msg", form);
   m.textContent = text || ""; m.classList.toggle("is-err", kind === "err"); m.classList.toggle("is-ok", kind === "ok");
 }
-
 function setBusy(form, busy) {
   const b = $("button[type=submit]", form);
   b.disabled = busy;
@@ -90,26 +89,10 @@ $$(".waitlist").forEach((form) => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = form.email.value.trim().toLowerCase();
-    
-    if (form.company && form.company.value) { 
-      form.classList.add("is-done"); 
-      setMsg(form, "¡Estás dentro!", "ok"); 
-      return; 
-    } // honeypot: bots
-    
-    if (!EMAIL_RE.test(email) || email.length > 254) { 
-      setMsg(form, "Revisa tu email: parece que no es válido.", "err"); 
-      form.email.focus(); 
-      return; 
-    }
-    
-    if (!form.consent.checked) { 
-      setMsg(form, "Necesitamos que aceptes la política de privacidad para apuntarte.", "err"); 
-      return; 
-    }
-    
-    setMsg(form, ""); 
-    setBusy(form, true);
+    if (form.company.value) { form.classList.add("is-done"); setMsg(form, "¡Estás dentro!", "ok"); return; } // honeypot: bots
+    if (!EMAIL_RE.test(email) || email.length > 254) { setMsg(form, "Revisa tu email: parece que no es válido.", "err"); form.email.focus(); return; }
+    if (!form.consent.checked) { setMsg(form, "Necesitamos que aceptes la política de privacidad para apuntarte.", "err"); return; }
+    setMsg(form, ""); setBusy(form, true);
     
     try {
       const response = await fetch(FORMSPREE_ENDPOINT, {
@@ -119,6 +102,7 @@ $$(".waitlist").forEach((form) => {
       });
 
       if (response.ok) {
+        try { localStorage.setItem(JOINED_KEY, "1"); } catch {}
         form.classList.add("is-done"); 
         setMsg(form, "¡Estás dentro! Te avisaremos cuando abramos la primera comunidad.", "ok");
       } else {
@@ -126,7 +110,7 @@ $$(".waitlist").forEach((form) => {
       }
     } catch (err) {
       console.error("[TheLoop]", err);
-      setMsg(form, "Error de conexión. Inténtalo de nuevo más tarde.", "err");
+      setMsg(form, "No hemos podido apuntarte ahora mismo. Inténtalo de nuevo en un momento.", "err");
     } finally { 
       setBusy(form, false); 
     }

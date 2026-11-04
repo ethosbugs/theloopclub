@@ -1,12 +1,11 @@
-import { firebaseConfig, siteConfig } from "./firebase-config.js";
+import { siteConfig } from "./firebase-config.js"; // Opcional: si ya borraste firebase-config.js, puedes quitar esta línea y definir el contacto manualmente
 import { initStage } from "./stage.js";
 
-const FIREBASE_VERSION = "10.14.1";
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ---------- ajustes desde firebase-config.js ---------- */
+/* ---------- ajustes generales ---------- */
 $("#year").textContent = new Date().getFullYear();
 if (siteConfig.instagram) $("#igLink").href = siteConfig.instagram;
 if (siteConfig.tiktok) { const t = $("#ttLink"); t.href = siteConfig.tiktok; t.hidden = false; }
@@ -67,48 +66,17 @@ initStage({ reduceMotion });
   if (vs) io.observe(vs);
 })();
 
-/* ---------- Firebase (carga perezosa, solo si está configurado) ---------- */
-const isConfigured = () => Object.values(firebaseConfig).every((v) => typeof v === "string" && v && !v.startsWith("TU_") && !v.includes("TU_"));
-let fb = null;
-async function getFirebase() {
-  if (fb) return fb;
-  const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}`;
-  const [{ initializeApp }, { getFirestore, doc, setDoc, serverTimestamp }] = await Promise.all([
-    import(`${base}/firebase-app.js`),
-    import(`${base}/firebase-firestore.js`),
-  ]);
-  const app = initializeApp(firebaseConfig);
-  fb = { db: getFirestore(app), doc, setDoc, serverTimestamp };
-  return fb;
-}
-
-async function sha256Hex(text) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-async function saveEmail(email, source) {
-  if (!isConfigured()) {
-    console.warn("[TheLoop] MODO DEMO: firebase-config.js todavía tiene valores de ejemplo, no se ha guardado nada. Mira el README.");
-    await new Promise((r) => setTimeout(r, 700));
-    return "demo";
-  }
-  const { db, doc, setDoc, serverTimestamp } = await getFirebase();
-  const id = await sha256Hex(email);                 // el email no se usa como ID; evita duplicados
-  await setDoc(doc(db, siteConfig.collection || "waitlist", id), {
-    email, consent: true, source, lang: (navigator.language || "es").slice(0, 10), createdAt: serverTimestamp(),
-  });
-  return "ok";
-}
-
-/* ---------- formularios de la lista privada ---------- */
+/* ---------- formularios de la lista privada (Formspree) ---------- */
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-const JOINED_KEY = "theloop_joined";
+
+// REEMPLAZA ESTE ENLACE con tu endpoint real de Formspree (ej: "https://formspree.io/f/tu-codigo")
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/TU_ENDPOINT_AQUI";
 
 function setMsg(form, text, kind) {
   const m = $(".form__msg", form);
   m.textContent = text || ""; m.classList.toggle("is-err", kind === "err"); m.classList.toggle("is-ok", kind === "ok");
 }
+
 function setBusy(form, busy) {
   const b = $("button[type=submit]", form);
   b.disabled = busy;
@@ -122,24 +90,45 @@ $$(".waitlist").forEach((form) => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = form.email.value.trim().toLowerCase();
-    if (form.company.value) { form.classList.add("is-done"); setMsg(form, "¡Estás dentro!", "ok"); return; } // honeypot: bots
-    if (!EMAIL_RE.test(email) || email.length > 254) { setMsg(form, "Revisa tu email: parece que no es válido.", "err"); form.email.focus(); return; }
-    if (!form.consent.checked) { setMsg(form, "Necesitamos que aceptes la política de privacidad para apuntarte.", "err"); return; }
-    setMsg(form, ""); setBusy(form, true);
+    
+    if (form.company && form.company.value) { 
+      form.classList.add("is-done"); 
+      setMsg(form, "¡Estás dentro!", "ok"); 
+      return; 
+    } // honeypot: bots
+    
+    if (!EMAIL_RE.test(email) || email.length > 254) { 
+      setMsg(form, "Revisa tu email: parece que no es válido.", "err"); 
+      form.email.focus(); 
+      return; 
+    }
+    
+    if (!form.consent.checked) { 
+      setMsg(form, "Necesitamos que aceptes la política de privacidad para apuntarte.", "err"); 
+      return; 
+    }
+    
+    setMsg(form, ""); 
+    setBusy(form, true);
+    
     try {
-      await saveEmail(email, form.dataset.source || "web");
-      try { localStorage.setItem(JOINED_KEY, "1"); } catch {}
-      form.classList.add("is-done"); setMsg(form, "¡Estás dentro! Te avisaremos cuando abramos la primera comunidad.", "ok");
-    } catch (err) {
-      console.error("[TheLoop]", err);
-      if (err && (err.code === "permission-denied" || /permission/i.test(err.message || ""))) {
-        // Firestore responde igual a "email ya registrado" que a "reglas mal publicadas"
-        let joined = false; try { joined = localStorage.getItem(JOINED_KEY) === "1"; } catch {}
-        if (joined) { form.classList.add("is-done"); setMsg(form, "Ya estabas en la lista. ¡Te avisaremos cuando abramos!", "ok"); }
-        else setMsg(form, "No hemos podido completar el alta. Si ya te apuntaste antes, ya estás en la lista; si no, inténtalo de nuevo más tarde.", "err");
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: { "Accept": "application/json" },
+        body: new FormData(form)
+      });
+
+      if (response.ok) {
+        form.classList.add("is-done"); 
+        setMsg(form, "¡Estás dentro! Te avisaremos cuando abramos la primera comunidad.", "ok");
       } else {
         setMsg(form, "No hemos podido apuntarte ahora mismo. Inténtalo de nuevo en un momento.", "err");
       }
-    } finally { setBusy(form, false); }
+    } catch (err) {
+      console.error("[TheLoop]", err);
+      setMsg(form, "Error de conexión. Inténtalo de nuevo más tarde.", "err");
+    } finally { 
+      setBusy(form, false); 
+    }
   });
 });
